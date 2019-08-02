@@ -1,22 +1,24 @@
+package Minesweeper_w_gridpane;
+
 import javafx.scene.paint.Color;
 
-public class Controller {
+public class ControllerGrid {
 
     private MinesweeperGridView view;
-    private Minesweeper game;
+    private MinesweeperGrid game;
 
-    public Controller(MinesweeperGridView view, int length, int height, int nbMines) {
+    public ControllerGrid(MinesweeperGridView view, int length, int height, int nbMines) {
         this.view = view;
-        game = new Minesweeper(length, height, nbMines, this);
+        game = new MinesweeperGrid(length, height, nbMines, this);
     }
 
     public void send(int x, int y) {
         System.out.println(x + " " + y);
 
-        if (game.state == Minesweeper.State.PLAYING) {
+        if (game.state == MinesweeperGrid.State.PLAYING) {
             if (game.hasMine(x,y)) {
                 revealMines(x, y);
-                game.state = Minesweeper.State.DEFEAT;
+                game.state = MinesweeperGrid.State.DEFEAT;
             }
 
             else if (game.tiles[y][x] == -1) { // has not been visited
@@ -25,7 +27,7 @@ public class Controller {
 
             if (game.safeTiles == 0) {
                 revealMines();
-                game.state = Minesweeper.State.VICTORY;
+                game.state = MinesweeperGrid.State.VICTORY;
             }
         }
 

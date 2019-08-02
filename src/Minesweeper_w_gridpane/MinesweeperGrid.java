@@ -1,8 +1,12 @@
+package Minesweeper_w_gridpane;
+
+import Minesweeper_w_gridpane.ControllerGrid;
+
 import java.util.Random;
 
-public class Minesweeper {
+public class MinesweeperGrid {
 
-    private Controller controller;
+    private ControllerGrid controllerGrid;
 
     protected enum State {
         PLAYING,
@@ -16,12 +20,12 @@ public class Minesweeper {
     protected boolean[][] mines;
     protected int length, height;
 
-    public Minesweeper(int length, int height, int nbMines, Controller controller) {
+    public MinesweeperGrid(int length, int height, int nbMines, ControllerGrid controllerGrid) {
         this.length = length;
         this.height = height;
         setBoard(nbMines);
         state = State.PLAYING;
-        this.controller = controller;
+        this.controllerGrid = controllerGrid;
     }
 
     public void setBoard(int nbMines) {
@@ -76,7 +80,7 @@ public class Minesweeper {
         }
 
         tiles[y][x] = mineCounter;
-        controller.setNumber(mineCounter, x, y);
+        controllerGrid.setNumber(mineCounter, x, y);
         safeTiles--;
 
         if (mineCounter == 0) {
@@ -130,7 +134,7 @@ public class Minesweeper {
 
         /*// args = [length, height, nbMines]
         length = Integer.parseInt(args[0]); height = Integer.parseInt(args[1]);
-        //Minesweeper game = new Minesweeper(length, height, Integer.parseInt(args[2]));
+        //Minesweeper_w_gridpane.MinesweeperGrid game = new Minesweeper_w_gridpane.MinesweeperGrid(length, height, Integer.parseInt(args[2]));
 
         System.out.println(game.gridToString()); // todo remove
 

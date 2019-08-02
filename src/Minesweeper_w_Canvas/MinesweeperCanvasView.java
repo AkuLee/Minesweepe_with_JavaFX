@@ -1,23 +1,31 @@
+package Minesweeper_w_Canvas;
+
+import Minesweeper_w_Canvas.ControllerCanvas;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.Spinner;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
-public class MinesweeperGridView extends Application {
-
-    boolean firstime = true;
+public class MinesweeperCanvasView extends Application {
 
     private VBox intro; // Scene
     private Stage primaryStage;
-    private Controller controller;
-    protected GridPane grid;
+    private ControllerCanvas controllerCanvas;
+
+    private GraphicsContext graphic;
+    private Pane root;
 
     private int length, height, nbMines;
+
+    private int imgPx = 2;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -28,7 +36,7 @@ public class MinesweeperGridView extends Application {
         // --- Initialise screen ---
         primaryStage.setScene(new Scene(intro));
         primaryStage.setResizable(false);
-        primaryStage.setTitle("MinesweeperGridView");
+        primaryStage.setTitle("Minesweeper");
         primaryStage.show();
     }
 
@@ -39,7 +47,7 @@ public class MinesweeperGridView extends Application {
     private void makeIntroScene() {
 
         // --- Text ---
-        Text    first = new Text("Length: "),
+        Text first = new Text("Length: "),
                 snd = new Text("Height: "),
                 third = new Text("Number of mines: ");
 
@@ -55,13 +63,13 @@ public class MinesweeperGridView extends Application {
         // --- Submit button ---
         Button submit = new Button("Submit");
         submit.setOnAction(event -> { // On submit, recuperate all settings given by user and generate the game from it.
-            height = (int) lengthText.getValue();
-            length = (int) heightText.getValue();
-            makeGrid();
+            length = (int) lengthText.getValue();
+            height = (int) heightText.getValue();
+            makeCanvas();
 
             nbMines = (int) nbMinesText.getValue();
-            controller = new Controller(this, length, height, nbMines);
-            primaryStage.setScene(new Scene(grid));
+            controllerCanvas = new ControllerCanvas(this, length, height, nbMines);
+            primaryStage.setScene(new Scene(root));
         });
 
         // --- Align settings input vertically ---
@@ -79,53 +87,84 @@ public class MinesweeperGridView extends Application {
      * Function that creates a GridPane of length x height with a button in each cell and sets it to private attribute
      * grid.
      */
-    public void makeGrid() {
+    public void makeCanvas() {
 
-        grid = new GridPane();
+        int sHeight = imgPx*height* Images.images[0].length, sLength = imgPx*length* Images.images[0].length;
 
-        for (int i = 0; i < height; i++) { // Y-axis
-            for (int j = 0; j < length; j++) { // X-axis
-                Button button = new Button(" "); // Default initial content
+        // length
+        if (imgPx*length* Images.images[0][0].length > 800) {
+            sLength = 800;
+            imgPx *= (int) (imgPx * (800 / (length* Images.images[0][0].length)));
+        }
 
-                button.setStyle("-fx-font-weight: bold");
-                button.setBackground(new Background(new BackgroundFill(Color.LIGHTGREY, null, null)));
-                button.setBorder(new Border(
-                        new BorderStroke(Color.GREY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)
-                ));
+        // height
+        if (imgPx*height* Images.images[0][0].length > 700) {
+            sHeight = 700;
+            imgPx = (int) (imgPx * (700 / (height* Images.images[0][0].length)));
+        }
 
-                button.setPrefSize(40, 40); // Preferred size.
-                button.setFocusTraversable(false); // Aesthetic non traversable
-                button.setId(j + "-" + i); // "x-y"
+        System.out.println("height:" + sHeight + " length:" + sLength);
 
-                button.setOnAction((event) -> { // Recuperate (x,y) position and send to controller for logic changes.
-                    String[] pos = button.getId().split("-");
-                    controller.send(Integer.parseInt(pos[0]), Integer.parseInt(pos[1]));
-                });
+        Canvas canvas = new Canvas(sLength, sHeight);
+        graphic = canvas.getGraphicsContext2D();
 
-                if (firstime) {
-                    System.out.println(button.isHover());
-                    firstime = false;
+        int[][] image = Images.images[11];
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < length; x++) {
+
+                for (int i = 0; i < image.length; i++) {
+                    for (int j = 0; j < image.length; j++) {
+
+                        graphic.setFill(getColor(image[i][j]));
+
+                        graphic.fillRect(imgPx * (j + x*image.length), imgPx * (i + y*image.length),
+                                         imgPx, imgPx);
+
+                    }
                 }
 
-                grid.add(button, j, i);
+            }
+        }
+
+        root = new Pane(canvas);
+        root.setOnMouseReleased(event -> {
+            double mouseX = event.getX();
+            double mouseY = event.getY();
+
+            int tileX = (int) (mouseX/(imgPx * Images.images[0].length));
+            int tileY = (int) (mouseY/(imgPx * Images.images[0].length));
+
+            System.out.println("x:" + tileX + " y:" + tileY);
+
+            controllerCanvas.send(tileX, tileY);
+        });
+    }
+
+    /**
+     * Function that sets a text to a button
+     * @param idx the index of the image
+     * @param x the x-value of the tile
+     * @param y the y-value of the tile
+     */
+    public void setTileView(int idx, int x, int y) {
+
+        int[][] image = Images.images[idx];
+        for (int i = 0; i < image.length; i++) {
+            for (int j = 0; j < image.length; j++) {
+
+                graphic.setFill(getColor(image[i][j]));
+
+                graphic.fillRect(imgPx * (j + x*image.length), imgPx * (i + y*image.length),
+                        imgPx, imgPx);
+
             }
         }
 
     }
 
-    /**
-     * Function that sets a text to a button
-     * @param color color of text
-     * @param text the string
-     * @param x the x-value of the button
-     * @param y the y-value of the button
-     */
-    public void setGridText(Color color, String text, int x, int y) {
-        Button button = (Button) grid.getChildren().get(y * length + x);
-        button.setTextFill(color);
-        button.setText(text);
-        button.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, null, null)));
-
+    public Color getColor(int color) {
+        return Color.rgb(Images.colormap[color][0], Images.colormap[color][1], Images.colormap[color][2]);
     }
 
     /**
@@ -139,9 +178,9 @@ public class MinesweeperGridView extends Application {
 
         Button tryAgain = new Button("Try again");
         tryAgain.setOnAction(event -> {
-            makeGrid();
-            controller = new Controller(this, length, height, nbMines);
-            primaryStage.setScene(new Scene(grid));
+            makeCanvas();
+            controllerCanvas = new ControllerCanvas(this, length, height, nbMines);
+            primaryStage.setScene(new Scene(root));
         });
         tryAgain.setFocusTraversable(false);
         tryAgain.setStyle("-fx-font-weight: bold");
@@ -157,12 +196,12 @@ public class MinesweeperGridView extends Application {
         VBox again = new VBox(defeat, tryAgain, changeSettings);
         again.setAlignment(Pos.CENTER);
 
-        grid.setOpacity(0.40);
+        root.setOpacity(0.40);
 
-        StackPane stack = new StackPane(grid, again);
+        StackPane stack = new StackPane(root, again);
         stack.setAlignment(Pos.CENTER);
 
-        primaryStage.setScene(new Scene(stack)); // Set new scene.
+        primaryStage.setScene(new Scene(stack)); // Set new scene.*/
     }
 
     /**
@@ -175,9 +214,9 @@ public class MinesweeperGridView extends Application {
 
         Button playAgain = new Button("Play again");
         playAgain.setOnAction(event -> {
-            makeGrid();
-            controller = new Controller(this, length, height, nbMines);
-            primaryStage.setScene(new Scene(grid));
+            makeCanvas();
+            controllerCanvas = new ControllerCanvas(this, length, height, nbMines);
+            primaryStage.setScene(new Scene(root));
         });
         playAgain.setFocusTraversable(false);
         playAgain.setStyle("-fx-font-weight: bold");
@@ -193,9 +232,9 @@ public class MinesweeperGridView extends Application {
         VBox again = new VBox(defeat, playAgain, changeSettings);
         again.setAlignment(Pos.CENTER);
 
-        grid.setOpacity(0.40);
+        root.setOpacity(0.40);
 
-        StackPane stack = new StackPane(grid, again);
+        StackPane stack = new StackPane(root, again);
         stack.setAlignment(Pos.CENTER);
 
         primaryStage.setScene(new Scene(stack)); // Set new scene.
