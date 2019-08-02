@@ -1,6 +1,5 @@
 package Minesweeper_w_Canvas;
 
-import Minesweeper_w_Canvas.ControllerCanvas;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;

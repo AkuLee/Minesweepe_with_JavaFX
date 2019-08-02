@@ -1,7 +1,5 @@
 package Minesweeper_w_Canvas;
 
-import Minesweeper_w_Canvas.ControllerCanvas;
-
 import java.util.Random;
 
 public class MinesweeperCanvas {
