@@ -8,7 +8,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
-public class MinesweeperView extends Application {
+public class MinesweeperGridView extends Application {
 
     boolean firstime = true;
 
@@ -28,7 +28,7 @@ public class MinesweeperView extends Application {
         // --- Initialise screen ---
         primaryStage.setScene(new Scene(intro));
         primaryStage.setResizable(false);
-        primaryStage.setTitle("MinesweeperView");
+        primaryStage.setTitle("MinesweeperGridView");
         primaryStage.show();
     }
 

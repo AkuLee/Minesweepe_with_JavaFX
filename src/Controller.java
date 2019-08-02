@@ -2,10 +2,10 @@ import javafx.scene.paint.Color;
 
 public class Controller {
 
-    private MinesweeperView view;
+    private MinesweeperGridView view;
     private Minesweeper game;
 
-    public Controller(MinesweeperView view, int length, int height, int nbMines) {
+    public Controller(MinesweeperGridView view, int length, int height, int nbMines) {
         this.view = view;
         game = new Minesweeper(length, height, nbMines, this);
     }
